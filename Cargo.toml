@@ -17,9 +17,10 @@ categories = ["command-line-utilities"]
 [dependencies]
 structopt = "0.3.13"
 dialoguer = "0.6.2"
-sha1 = "0.6.0"
-base64 = "0.12.1"
 data-encoding = "2.2.0"
 data-encoding-macro = "0.1.8"
 regex = "1"
 lazy_static = "1.4.0"
+pbkdf2 = "0.3.0"
+sha2 = "0.8.1"
+hmac = "0.7.1"

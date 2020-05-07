@@ -12,17 +12,11 @@ little bit of it after all), not passed as a command argument and never
 displayed so it will not show in bash history, logs, etc.
 
 Generated passwords contains letters, capitals, digits and special characters.
-We use a custom encoding on top of the SHA1 hash to provide those features.
+We use a custom bas64 encoding on top of a PKBF2/SHA256 hash to provide those
+features with satisfying variety.
 
+Passwords are 43 characters long most of the time.
 
-## Disclaimer
-
-This is a work in progress. It works, but the algorithm used to hash the
-password must be changed if favor of a slow one that supports multiple
-iterations.
-
-We would also determine a number of iterations from the master key to make
-virtually impossible to use brute-force to find the hash.
 
 ## Examples
 
@@ -32,7 +26,7 @@ virtually impossible to use brute-force to find the hash.
 $ nobrain example.com
 Master key: [hidden]
 Domain         example.com
-Your password  GxHeUxFeVPU3JPguH$ExVSQvUfUxJDhdHPheUxHeGxcwUiEwHDg1Hc
+Your password  vh8n0+BXrsTzckt.n08r41n-sEpQKfD0MKXtL1j2Jfs
 ```
 
 Of course `example.com` is just an arbitrary identifier. It is a good practice
@@ -51,7 +45,7 @@ $ nobrain example.com -u lud
 Master key: [hidden]
 Domain         example.com
 Username       lud
-Your password  JDcuVi:vGPAwVSUvViHgU0:3GxGuUxEyJSMeGSU3GDYvJ$ViGPA2GA
+Your password  eeovoS9HN9P:L4CsXf+Atw!6SHYehBjfBV:T.15CFF:
 ```
 
 Note that the output is different, because the username is added to the hash.

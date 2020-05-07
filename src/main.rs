@@ -1,11 +1,11 @@
-extern crate data_encoding;
 #[macro_use]
 extern crate data_encoding_macro;
 use data_encoding::Encoding;
+use hmac::Hmac;
 use lazy_static::lazy_static;
+use pbkdf2::pbkdf2;
 use regex::Regex;
-extern crate dialoguer;
-extern crate sha1;
+use sha2::Sha256;
 
 use dialoguer::Password;
 use structopt::StructOpt;
@@ -38,21 +38,18 @@ const PASSWORD: Encoding = new_encoding! {
     // symbols: "_)([]$ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijknopqrstuvwxyz0123456789",
 };
 
+const HASH_SIZE: usize = 32;
+
 fn main() {
     let args = Opts::from_args();
     let master_key = get_master_key(args.confirm);
     let hash_data = if args.username.is_empty() {
-        [master_key, args.domain.to_string()].join("")
+        args.domain.to_string()
     } else {
-        [
-            master_key,
-            args.username.to_string(),
-            args.domain.to_string(),
-        ]
-        .join("")
+        [args.username.to_string(), args.domain.to_string()].join("")
     };
     let mut iterations: i32 = 0;
-    let result = create_password(hash_data, &mut iterations);
+    let result = create_password(hash_data, &master_key, &mut iterations);
     if args.no_newline {
         print!("{}", result);
     } else {
@@ -83,19 +80,23 @@ fn get_master_key(confirm: bool) -> String {
     }
 }
 
-fn create_password(hashable: String, iter: &mut i32) -> String {
+fn create_password(hashable: String, master_key: &String, iter: &mut i32) -> String {
+    create_password_2(hashable.as_bytes(), master_key.as_bytes(), iter)
+}
+
+fn create_password_2(hashable: &[u8], master_key: &[u8], iter: &mut i32) -> String {
     *iter += 1;
-    let hash = sha1::Sha1::from(hashable).digest().to_string();
-    let pwd = PASSWORD.encode(hash.as_bytes());
+    let mut hash = [0u8; HASH_SIZE];
+    pbkdf2::<Hmac<Sha256>>(hashable, master_key, HASH_SIZE, &mut hash);
+    let pwd = PASSWORD.encode(&mut hash);
     // As long as we do not have all features we re-encode the result
     // recursively
     if has_all_features(&pwd) {
         pwd
     } else if *iter > 100 {
-        println!("last attempt: {}", pwd);
         panic!("Could not determine a proper password");
     } else {
-        create_password(hash, iter)
+        create_password_2(pwd.as_bytes(), master_key, iter)
     }
 }
 
