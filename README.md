@@ -26,18 +26,18 @@ virtually impossible to use brute-force to find the hash.
 
 ## Examples
 
-#### Generate a password for github.com
+#### Generate a password for example.com
 
 ```
-$ nobrain github.com
+$ nobrain example.com
 Master key: [hidden]
-Domain         github.com
+Domain         example.com
 Your password  GxHeUxFeVPU3JPguH$ExVSQvUfUxJDhdHPheUxHeGxcwUiEwHDg1Hc
 ```
 
-Of course `github.com` is just an arbitrary identifier. It is a good practice to
-use the domain name of the website you need a password for, so you do not need
-too remember if you used `Github`, `github`, `GitHub`. Or was it `git-hub` ?
+Of course `example.com` is just an arbitrary identifier. It is a good practice
+to use the domain name of the website you need a password for, so you do not
+need too remember if you used `example`, `Example` or `"Example Site"` …
 
 But any of those will work, too.
 
@@ -47,9 +47,9 @@ But any of those will work, too.
 Simply add the `-u <username>` option.
 
 ```
-$ nobrain github.com -u lud
+$ nobrain example.com -u lud
 Master key: [hidden]
-Domain         github.com
+Domain         example.com
 Username       lud
 Your password  JDcuVi:vGPAwVSUvViHgU0:3GxGuUxEyJSMeGSU3GDYvJ$ViGPA2GA
 ```
