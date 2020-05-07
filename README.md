@@ -1,7 +1,7 @@
 # nobrain
 
 This is a small command line utility to (re)generate passwords based on a master
-key, a domain name (or any other "domain" identifier), and optionnaly a
+key, a domain name (or any other "domain" identifier), and optionally a
 username.
 
 With the single master key to remember, you can regenerate the same password
