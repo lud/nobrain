@@ -52,10 +52,10 @@ Note that the output is different, because the username is added to the hash.
 Any change to the username will result in a different password, so any username
 will have its own password.
 
+<!-- usage -->
 ## Usage
 
 ```
-$ nobrain --help
 nobrain 0.1.0
 
 USAGE:
@@ -71,5 +71,6 @@ OPTIONS:
     -u, --user <username>    Add a username [default: ]
 
 ARGS:
-    <domain>
+    <domain>    
+
 ```
