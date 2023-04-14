@@ -1,12 +1,18 @@
 #[macro_use]
 extern crate data_encoding_macro;
 use data_encoding::Encoding;
+use dirs::home_dir;
+use std::fs;
+
 use hmac::Hmac;
 use lazy_static::lazy_static;
 use pbkdf2::pbkdf2;
 use regex::Regex;
 use sha2::Sha256;
+use std::path::PathBuf;
+use std::result::Result;
 
+use dialoguer::Confirm;
 use dialoguer::Password;
 use structopt::StructOpt;
 
@@ -41,12 +47,55 @@ const PASSWORD: Encoding = new_encoding! {
 const HASH_SIZE: usize = 32;
 
 fn main() {
+    let exit_code = match get_home_dir().and_then(with_home).and_then(with_hardkey) {
+        Ok(_) => 0,
+        Err(err) => {
+            println!("{}", err);
+            1
+        }
+    };
+    std::process::exit(exit_code);
+}
+
+fn get_home_dir() -> Result<PathBuf, &'static str> {
+    match home_dir() {
+        None => Result::Err("Impossible to get your home dir!"),
+        Some(path) => Ok(path),
+    }
+}
+
+fn with_home(path: std::path::PathBuf) -> Result<String, &'static str> {
+    println!("Your home directory: {}", path.display());
+    let keyfile: PathBuf = path.join(".nobrain");
+
+    match fs::read_to_string(&keyfile) {
+        Ok(hardkey) => Ok(hardkey),
+        Err(_) => {
+            println!("Hard key file does not exist");
+            let do_create = Confirm::new()
+                .with_prompt("Would you like to create a .nobrain file in your home directory ?")
+                .interact()
+                .unwrap();
+            if do_create {
+                let hardkey = "__TEST__TEST__TEST__";
+                match fs::write(keyfile, hardkey) {
+                    Ok(_) => Ok(String::from(hardkey)),
+                    _ => Err("Could not write .nobrain file"),
+                }
+            } else {
+                Err("Canceled")
+            }
+        }
+    }
+}
+
+fn with_hardkey(hardkey: String) -> Result<bool, &'static str> {
     let args = Opts::from_args();
     let master_key = get_master_key(args.confirm);
     let hash_data = if args.username.is_empty() {
-        args.domain.to_string()
+        [hardkey, args.domain.to_string()].join("")
     } else {
-        [args.username.to_string(), args.domain.to_string()].join("")
+        [hardkey, args.username.to_string(), args.domain.to_string()].join("")
     };
     let mut iterations: i32 = 0;
     let result = create_password(hash_data, &master_key, &mut iterations);
@@ -62,7 +111,8 @@ fn main() {
         }
         // println!("hash:          {} ", hash);
         println!("Your password  {} ", result);
-    }
+    };
+    Ok(true)
 }
 
 fn get_master_key(confirm: bool) -> String {
